@@ -22,17 +22,79 @@ Partial Class MainFrom
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Me.StatusStrip = New System.Windows.Forms.StatusStrip()
+        Me.StatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.EndpointLabel = New System.Windows.Forms.Label()
+        Me.EndpointInput = New System.Windows.Forms.TextBox()
+        Me.SocketConnectButton = New System.Windows.Forms.Button()
+        Me.StatusStrip.SuspendLayout()
         Me.SuspendLayout()
+        '
+        'StatusStrip
+        '
+        Me.StatusStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.StatusLabel})
+        Me.StatusStrip.Location = New System.Drawing.Point(0, 54)
+        Me.StatusStrip.Name = "StatusStrip"
+        Me.StatusStrip.Size = New System.Drawing.Size(506, 22)
+        Me.StatusStrip.SizingGrip = False
+        Me.StatusStrip.TabIndex = 0
+        Me.StatusStrip.Text = "StatusStrip"
+        '
+        'StatusLabel
+        '
+        Me.StatusLabel.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.StatusLabel.ForeColor = System.Drawing.Color.Red
+        Me.StatusLabel.Name = "StatusLabel"
+        Me.StatusLabel.Size = New System.Drawing.Size(83, 17)
+        Me.StatusLabel.Text = "Disconnected"
+        '
+        'EndpointLabel
+        '
+        Me.EndpointLabel.AutoSize = True
+        Me.EndpointLabel.Location = New System.Drawing.Point(12, 18)
+        Me.EndpointLabel.Name = "EndpointLabel"
+        Me.EndpointLabel.Size = New System.Drawing.Size(95, 13)
+        Me.EndpointLabel.TabIndex = 1
+        Me.EndpointLabel.Text = "Assigned Endpoint"
+        '
+        'EndpointInput
+        '
+        Me.EndpointInput.Location = New System.Drawing.Point(113, 15)
+        Me.EndpointInput.Name = "EndpointInput"
+        Me.EndpointInput.Size = New System.Drawing.Size(300, 20)
+        Me.EndpointInput.TabIndex = 2
+        '
+        'SocketConnectButton
+        '
+        Me.SocketConnectButton.Location = New System.Drawing.Point(419, 13)
+        Me.SocketConnectButton.Name = "SocketConnectButton"
+        Me.SocketConnectButton.Size = New System.Drawing.Size(75, 23)
+        Me.SocketConnectButton.TabIndex = 3
+        Me.SocketConnectButton.Text = "Connect"
+        Me.SocketConnectButton.UseVisualStyleBackColor = True
         '
         'MainFrom
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(800, 450)
+        Me.ClientSize = New System.Drawing.Size(506, 76)
+        Me.Controls.Add(Me.SocketConnectButton)
+        Me.Controls.Add(Me.EndpointInput)
+        Me.Controls.Add(Me.EndpointLabel)
+        Me.Controls.Add(Me.StatusStrip)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow
         Me.Name = "MainFrom"
-        Me.Text = "MainForm"
+        Me.Text = "Trade Controller - STPro Adapter"
+        Me.StatusStrip.ResumeLayout(False)
+        Me.StatusStrip.PerformLayout()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 
+    Friend WithEvents StatusStrip As StatusStrip
+    Friend WithEvents StatusLabel As ToolStripStatusLabel
+    Friend WithEvents EndpointLabel As Label
+    Friend WithEvents EndpointInput As TextBox
+    Friend WithEvents SocketConnectButton As Button
 End Class
