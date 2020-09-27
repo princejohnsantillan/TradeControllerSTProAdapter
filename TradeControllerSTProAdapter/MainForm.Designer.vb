@@ -35,7 +35,7 @@ Partial Class MainFrom
         Me.StatusStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.StatusLabel})
         Me.StatusStrip.Location = New System.Drawing.Point(0, 54)
         Me.StatusStrip.Name = "StatusStrip"
-        Me.StatusStrip.Size = New System.Drawing.Size(506, 22)
+        Me.StatusStrip.Size = New System.Drawing.Size(497, 22)
         Me.StatusStrip.SizingGrip = False
         Me.StatusStrip.TabIndex = 0
         Me.StatusStrip.Text = "StatusStrip"
@@ -51,22 +51,22 @@ Partial Class MainFrom
         'EndpointLabel
         '
         Me.EndpointLabel.AutoSize = True
-        Me.EndpointLabel.Location = New System.Drawing.Point(12, 18)
+        Me.EndpointLabel.Location = New System.Drawing.Point(12, 17)
         Me.EndpointLabel.Name = "EndpointLabel"
-        Me.EndpointLabel.Size = New System.Drawing.Size(95, 13)
+        Me.EndpointLabel.Size = New System.Drawing.Size(86, 13)
         Me.EndpointLabel.TabIndex = 1
-        Me.EndpointLabel.Text = "Assigned Endpoint"
+        Me.EndpointLabel.Text = "Console Address"
         '
         'EndpointInput
         '
-        Me.EndpointInput.Location = New System.Drawing.Point(113, 15)
+        Me.EndpointInput.Location = New System.Drawing.Point(104, 14)
         Me.EndpointInput.Name = "EndpointInput"
         Me.EndpointInput.Size = New System.Drawing.Size(300, 20)
         Me.EndpointInput.TabIndex = 2
         '
         'SocketConnectButton
         '
-        Me.SocketConnectButton.Location = New System.Drawing.Point(419, 13)
+        Me.SocketConnectButton.Location = New System.Drawing.Point(410, 12)
         Me.SocketConnectButton.Name = "SocketConnectButton"
         Me.SocketConnectButton.Size = New System.Drawing.Size(75, 23)
         Me.SocketConnectButton.TabIndex = 3
@@ -77,14 +77,14 @@ Partial Class MainFrom
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(506, 76)
+        Me.ClientSize = New System.Drawing.Size(497, 76)
         Me.Controls.Add(Me.SocketConnectButton)
         Me.Controls.Add(Me.EndpointInput)
         Me.Controls.Add(Me.EndpointLabel)
         Me.Controls.Add(Me.StatusStrip)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow
         Me.Name = "MainFrom"
-        Me.Text = "Trade Controller - STPro Adapter"
+        Me.Text = "Trade Console"
         Me.StatusStrip.ResumeLayout(False)
         Me.StatusStrip.PerformLayout()
         Me.ResumeLayout(False)
