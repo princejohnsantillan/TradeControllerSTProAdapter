@@ -280,15 +280,16 @@ Public Class MainFrom
     End Sub
 
     Public Sub GetAccountInfo(Parameters As Object)
+        Dim Account As String = Parameters("Account")
+
         Dim Data As New DataLayer
-        Data.SetAccountUpdate(TCSTIAcctMaint.GetAccountInfo(Parameters.ToString))
+        Data.SetAccountUpdate(TCSTIAcctMaint.GetAccountInfo(Account))
 
         SendToWebsocket(Data)
     End Sub
 
     Public Sub MaintainAccount(Parameters As Object)
-        Dim AccountStruct As structSTIAcctUpdate = StructConvert.ToSTIAccountUpdate(Parameters.ToString)
-        Dim Code As Integer = TCSTIAcctMaint.MaintainAccount(AccountStruct)
+        Dim Code As Integer = TCSTIAcctMaint.MaintainAccount(StructConvert.ToSTIAccountUpdate(Parameters.ToString))
 
         Dim Data As DataLayer = New DataLayer
         Data.SetMaintainAccountResponse(ErrorCodeHandler.MaintainAccountErrorMessage(Code))
@@ -297,11 +298,10 @@ Public Class MainFrom
     End Sub
 
     Public Sub MaintainSymbolControl(Parameters As Object)
-        Dim SymbolControlStruct As structSTISymbolControl = StructConvert.ToSTISymbolControl(Parameters.ToString)
-        Dim Code As Integer = TCSTIAcctMaint.MaintainSymbolControl(SymbolControlStruct)
+        Dim Code As Integer = TCSTIAcctMaint.MaintainSymbolControl(StructConvert.ToSTISymbolControl(Parameters.ToString))
 
         Dim Data As DataLayer = New DataLayer
-        Data.SetMaintainSymbolControlResponse(Code)
+        Data.SetMaintainAccountResponse(ErrorCodeHandler.MaintainAccountErrorMessage(Code))
 
         SendToWebsocket(Data)
     End Sub
@@ -323,9 +323,7 @@ Public Class MainFrom
     End Sub
 
     Private Sub SubmitOrder(Parameters As Object)
-        Dim OrderString As String = Parameters("Order")
-
-        Dim OrderStruct As structSTIOrder = StructConvert.ToSTIOrder(OrderString)
+        Dim OrderStruct As structSTIOrder = StructConvert.ToSTIOrder(Parameters.ToString)
         Dim Code As Integer = TCSTIOrder.SubmitOrderStruct(OrderStruct)
 
         If (Code <> 0) Then
