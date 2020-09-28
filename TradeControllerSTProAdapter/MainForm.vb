@@ -303,7 +303,7 @@ Public Class MainFrom
         Dim Code As Integer = TCSTIAcctMaint.MaintainSymbolControl(StructConvert.ToSTISymbolControl(Parameters.ToString))
 
         Dim Data As DataLayer = New DataLayer
-        Data.SetMaintainAccountResponse(ErrorCodeHandler.MaintainAccountErrorMessage(Code))
+        Data.SetMaintainSymbolControlResponse(ErrorCodeHandler.MaintainAccountErrorMessage(Code))
 
         SendToWebsocket(Data)
     End Sub
@@ -368,7 +368,7 @@ Public Class MainFrom
 
     Public Sub GetOrderList(Parameters As Object)
         Dim OpenOnly As Boolean = Parameters("OpenOnly")
-        Dim OrderList() As structSTIOrderUpdate = Nothing
+        Dim OrderList() As structSTIOrderUpdate? = Nothing
 
         TCSTIOrderMaint.GetOrderList(OpenOnly, OrderList)
 
@@ -379,7 +379,7 @@ Public Class MainFrom
     End Sub
 
     Public Sub GetOrderListEx(Parameters As Object)
-        Dim OrderList() As structSTIOrderUpdate = Nothing
+        Dim OrderList() As structSTIOrderUpdate? = Nothing
 
         TCSTIOrderMaint.GetOrderListEx(StructConvert.ToSTIOrderFilter(Parameters.ToString), OrderList)
 
@@ -390,7 +390,7 @@ Public Class MainFrom
     End Sub
 
     Public Sub GetTradeListEx(Parameters As Object)
-        Dim TradeList() As structSTITradeUpdate = Nothing
+        Dim TradeList() As structSTITradeUpdate? = Nothing
 
         TCSTIOrderMaint.GetTradeListEx(StructConvert.ToSTITradeFilter(Parameters.ToString), TradeList)
 
@@ -410,7 +410,7 @@ Public Class MainFrom
     End Sub
 
     Public Sub GetPositionList()
-        Dim PositionList() As structSTIPositionUpdate = Nothing
+        Dim PositionList() As structSTIPositionUpdate? = Nothing
         TCSTIPosition.GetPositionList(PositionList)
 
         Dim Data As DataLayer = New DataLayer
@@ -422,7 +422,7 @@ Public Class MainFrom
     Public Sub GetPosListByAccount(Parameters As Object)
         Dim Account As String = Parameters("Account")
 
-        Dim PositionList() As structSTIPositionUpdate = Nothing
+        Dim PositionList() As structSTIPositionUpdate? = Nothing
         TCSTIPosition.GetPosListByAccount(Account, PositionList)
 
         Dim Data As DataLayer = New DataLayer
@@ -434,7 +434,7 @@ Public Class MainFrom
     Public Sub GetPosListBySym(Parameters As Object)
         Dim Symbol As String = Parameters("Symbol")
 
-        Dim PositionList() As structSTIPositionUpdate = Nothing
+        Dim PositionList() As structSTIPositionUpdate? = Nothing
         TCSTIPosition.GetPosListBySym(Symbol, PositionList)
 
         Dim Data As DataLayer = New DataLayer

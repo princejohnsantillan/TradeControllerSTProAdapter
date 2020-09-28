@@ -32,62 +32,62 @@ Public Class DataLayer
     End Sub
 
 
-    Public MaintainSymbolControlResponse As Integer = Nothing
-    Public Sub SetMaintainSymbolControlResponse(Code As Integer)
-        MaintainSymbolControlResponse = Code
+    Public MaintainSymbolControlResponse As String = Nothing
+    Public Sub SetMaintainSymbolControlResponse(Response As String)
+        MaintainSymbolControlResponse = Response
     End Sub
 
 
-    Public AccountUpdate As structSTIAcctUpdate = Nothing
-    Public Sub SetAccountUpdate(AcctUpdateStruct As structSTIAcctUpdate)
+    Public AccountUpdate As structSTIAcctUpdate? = Nothing
+    Public Sub SetAccountUpdate(AcctUpdateStruct As structSTIAcctUpdate?)
         AccountUpdate = AcctUpdateStruct
     End Sub
 
 
-    Public PositionUpdate As structSTIPositionUpdate = Nothing
-    Public Sub SetPositionUpdate(PositionUpdateStruct As structSTIPositionUpdate)
+    Public PositionUpdate As structSTIPositionUpdate? = Nothing
+    Public Sub SetPositionUpdate(PositionUpdateStruct As structSTIPositionUpdate?)
         PositionUpdate = PositionUpdateStruct
     End Sub
 
 
-    Public Positions() As structSTIPositionUpdate = Nothing
-    Public Sub SetPositionList(PositionList() As structSTIPositionUpdate)
+    Public Positions() As structSTIPositionUpdate? = Nothing
+    Public Sub SetPositionList(PositionList() As structSTIPositionUpdate?)
         Positions = PositionList
     End Sub
 
 
-    Public Orders() As structSTIOrderUpdate = Nothing
-    Public Sub SetOrderList(OrderList() As structSTIOrderUpdate)
+    Public Orders() As structSTIOrderUpdate? = Nothing
+    Public Sub SetOrderList(OrderList() As structSTIOrderUpdate?)
         Orders = OrderList
     End Sub
 
 
-    Public OrderConfirm As structSTIOrderConfirm = Nothing
-    Public Sub SetOrderConfirm(OrderConfirmStruct As structSTIOrderConfirm)
+    Public OrderConfirm As structSTIOrderConfirm? = Nothing
+    Public Sub SetOrderConfirm(OrderConfirmStruct As structSTIOrderConfirm?)
         OrderConfirm = OrderConfirmStruct
     End Sub
 
 
-    Public OrderUpdate As structSTIOrderUpdate = Nothing
-    Public Sub SetOrderUpdate(OrderUpdateStruct As structSTIOrderUpdate)
+    Public OrderUpdate As structSTIOrderUpdate? = Nothing
+    Public Sub SetOrderUpdate(OrderUpdateStruct As structSTIOrderUpdate?)
         OrderUpdate = OrderUpdateStruct
     End Sub
 
 
-    Public OrderReject As structSTIOrderReject = Nothing
-    Public Sub SetOrderReject(OrderRejectStruct As structSTIOrderReject)
+    Public OrderReject As structSTIOrderReject? = Nothing
+    Public Sub SetOrderReject(OrderRejectStruct As structSTIOrderReject?)
         OrderReject = OrderRejectStruct
     End Sub
 
 
-    Public Trades() As structSTITradeUpdate = Nothing
-    Public Sub SetTradeList(TradeList() As structSTITradeUpdate)
+    Public Trades() As structSTITradeUpdate? = Nothing
+    Public Sub SetTradeList(TradeList() As structSTITradeUpdate?)
         Trades = TradeList
     End Sub
 
 
-    Public TradeUpdate As structSTITradeUpdate = Nothing
-    Public Sub SetTradeUpdate(TradeUpdateStruct As structSTITradeUpdate)
+    Public TradeUpdate As structSTITradeUpdate? = Nothing
+    Public Sub SetTradeUpdate(TradeUpdateStruct As structSTITradeUpdate?)
         TradeUpdate = TradeUpdateStruct
     End Sub
 
