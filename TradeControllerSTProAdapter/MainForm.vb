@@ -67,8 +67,9 @@ Public Class MainFrom
             TCSTIOrderMaint = New STIOrderMaint
             TCSTIPosition = New STIPosition
 
-            TCSTIApp.SetModeXML(False)
+            TCSTIApp.SetModeXML(True)
             TCSTIEvents.SetOrderEventsAsStructs(True)
+
             TCSTIPosition.RegisterForPositions()
 
             TCTraderID = TCSTIApp.GetTraderName
@@ -98,44 +99,44 @@ Public Class MainFrom
         SterlingIsNotRunning()
     End Sub
 
-    Private Sub TCSTIEvents_OnSTIOrderUpdate(ByRef structOrderUpdate As structSTIOrderUpdate) Handles TCSTIEvents.OnSTIOrderUpdate
+    Private Sub TCSTIEvents_OnSTIOrderUpdateXML(ByRef bstrOrder As String) Handles TCSTIEvents.OnSTIOrderUpdateXML
         Dim Data As DataLayer = New DataLayer
-        Data.SetOrderUpdate(structOrderUpdate)
+        Data.SetOrderUpdate(StructConvert.ToSTIOrderUpdate(bstrOrder))
 
         SendToWebsocket(Data)
     End Sub
 
-    Private Sub TCSTIEvents_OnSTIOrderConfirm(ByRef structOrderConfirm As structSTIOrderConfirm) Handles TCSTIEvents.OnSTIOrderConfirm
+    Private Sub TCSTIEvents_OnSTIOrderConfirmXML(ByRef bstrOrder As String) Handles TCSTIEvents.OnSTIOrderConfirmXML
         Dim Data As DataLayer = New DataLayer
-        Data.SetOrderConfirm(structOrderConfirm)
+        Data.SetOrderConfirm(StructConvert.ToSTIOrderConfirm(bstrOrder))
 
         SendToWebsocket(Data)
     End Sub
 
-    Private Sub TCSTIEvents_OnSTIOrderReject(ByRef structOrderReject As structSTIOrderReject) Handles TCSTIEvents.OnSTIOrderReject
+    Private Sub TCSTIEvents_OnSTIOrderRejectXML(ByRef bstrOrder As String) Handles TCSTIEvents.OnSTIOrderRejectXML
         Dim Data As DataLayer = New DataLayer
-        Data.SetOrderReject(structOrderReject)
+        Data.SetOrderReject(StructConvert.ToSTIOrderReject(bstrOrder))
 
         SendToWebsocket(Data)
     End Sub
 
-    Private Sub TCSTIEvents_OnSTITradeUpdate(ByRef structTradeUpdate As structSTITradeUpdate) Handles TCSTIEvents.OnSTITradeUpdate
+    Private Sub TCSTIEvents_OnSTITradeUpdateXML(ByRef bstrTrade As String) Handles TCSTIEvents.OnSTITradeUpdateXML
         Dim Data As DataLayer = New DataLayer
-        Data.SetTradeUpdate(structTradeUpdate)
+        Data.SetTradeUpdate(StructConvert.ToSTITradeUpdate(bstrTrade))
 
         SendToWebsocket(Data)
     End Sub
 
-    Private Sub TCSTIPosition_OnSTIPositionUpdate(ByRef structPositionUpdate As structSTIPositionUpdate) Handles TCSTIPosition.OnSTIPositionUpdate
+    Private Sub TCSTIPosition_OnSTIPositionUpdateXML(ByRef bstrPosition As String) Handles TCSTIPosition.OnSTIPositionUpdateXML
         Dim Data As DataLayer = New DataLayer
-        Data.SetPositionUpdate(structPositionUpdate)
+        Data.SetPositionUpdate(StructConvert.ToSTIPositionUpdate(bstrPosition))
 
         SendToWebsocket(Data)
     End Sub
 
-    Private Sub TCSTIAcctMaint_OnSTIAcctUpdate(ByRef structAcctUpdate As structSTIAcctUpdate) Handles TCSTIAcctMaint.OnSTIAcctUpdate
+    Private Sub TCSTIAcctMaint_OnSTIAcctUpdateXML(ByRef bstrAcct As String) Handles TCSTIAcctMaint.OnSTIAcctUpdateXML
         Dim Data As DataLayer = New DataLayer
-        Data.SetAccountUpdate(structAcctUpdate)
+        Data.SetAccountUpdate(StructConvert.ToSTIAccountUpdate(bstrAcct))
 
         SendToWebsocket(Data)
     End Sub
@@ -157,6 +158,7 @@ Public Class MainFrom
         SetConnectedStatus()
 
         SendMetadata()
+        GetPositionList()
     End Sub
 
     Private Sub TCWebSocket_Closed(sender As Object, e As EventArgs) Handles TCWebSocket.Closed
@@ -170,6 +172,7 @@ Public Class MainFrom
     End Sub
 
     Private Sub SendToWebsocket(Data As DataLayer)
+        Console.WriteLine(Data.ToJson)
         If TCWebSocket IsNot Nothing Then
             If TCWebSocket.State = WebSocketState.Open Then
                 Data.SetServerTime(TCSTIApp.GetServerTime)
@@ -368,7 +371,7 @@ Public Class MainFrom
 
     Public Sub GetOrderList(Parameters As Object)
         Dim OpenOnly As Boolean = Parameters("OpenOnly")
-        Dim OrderList() As structSTIOrderUpdate? = Nothing
+        Dim OrderList() As structSTIOrderUpdate = Nothing
 
         TCSTIOrderMaint.GetOrderList(OpenOnly, OrderList)
 
@@ -379,7 +382,7 @@ Public Class MainFrom
     End Sub
 
     Public Sub GetOrderListEx(Parameters As Object)
-        Dim OrderList() As structSTIOrderUpdate? = Nothing
+        Dim OrderList() As structSTIOrderUpdate = Nothing
 
         TCSTIOrderMaint.GetOrderListEx(StructConvert.ToSTIOrderFilter(Parameters.ToString), OrderList)
 
@@ -390,7 +393,7 @@ Public Class MainFrom
     End Sub
 
     Public Sub GetTradeListEx(Parameters As Object)
-        Dim TradeList() As structSTITradeUpdate? = Nothing
+        Dim TradeList() As structSTITradeUpdate = Nothing
 
         TCSTIOrderMaint.GetTradeListEx(StructConvert.ToSTITradeFilter(Parameters.ToString), TradeList)
 
@@ -410,7 +413,7 @@ Public Class MainFrom
     End Sub
 
     Public Sub GetPositionList()
-        Dim PositionList() As structSTIPositionUpdate? = Nothing
+        Dim PositionList() As structSTIPositionUpdate = Nothing
         TCSTIPosition.GetPositionList(PositionList)
 
         Dim Data As DataLayer = New DataLayer
@@ -422,7 +425,7 @@ Public Class MainFrom
     Public Sub GetPosListByAccount(Parameters As Object)
         Dim Account As String = Parameters("Account")
 
-        Dim PositionList() As structSTIPositionUpdate? = Nothing
+        Dim PositionList() As structSTIPositionUpdate = Nothing
         TCSTIPosition.GetPosListByAccount(Account, PositionList)
 
         Dim Data As DataLayer = New DataLayer
@@ -434,7 +437,7 @@ Public Class MainFrom
     Public Sub GetPosListBySym(Parameters As Object)
         Dim Symbol As String = Parameters("Symbol")
 
-        Dim PositionList() As structSTIPositionUpdate? = Nothing
+        Dim PositionList() As structSTIPositionUpdate = Nothing
         TCSTIPosition.GetPosListBySym(Symbol, PositionList)
 
         Dim Data As DataLayer = New DataLayer
@@ -443,5 +446,4 @@ Public Class MainFrom
         SendToWebsocket(Data)
     End Sub
 #End Region
-
 End Class

@@ -38,58 +38,103 @@ Public Class DataLayer
     End Sub
 
 
-    Public AccountUpdate As structSTIAcctUpdate? = Nothing
-    Public Sub SetAccountUpdate(AcctUpdateStruct As structSTIAcctUpdate?)
+    Public AccountUpdate As structSTIAcctUpdate = Nothing
+    Public Sub SetAccountUpdate(AcctUpdateStruct As structSTIAcctUpdate)
+        SerializeAccountUpdate = True
         AccountUpdate = AcctUpdateStruct
     End Sub
+    Private SerializeAccountUpdate As Boolean = False
+    Public Function ShouldSerializeAccountUpdate() As Boolean
+        Return SerializeAccountUpdate
+    End Function
 
 
-    Public PositionUpdate As structSTIPositionUpdate? = Nothing
-    Public Sub SetPositionUpdate(PositionUpdateStruct As structSTIPositionUpdate?)
+    Public PositionUpdate As structSTIPositionUpdate = Nothing
+    Public Sub SetPositionUpdate(PositionUpdateStruct As structSTIPositionUpdate)
+        SerializePositionUpdate = True
         PositionUpdate = PositionUpdateStruct
     End Sub
+    Private SerializePositionUpdate As Boolean = False
+    Public Function ShouldSerializePositionUpdate() As Boolean
+        Return SerializePositionUpdate
+    End Function
 
 
-    Public Positions() As structSTIPositionUpdate? = Nothing
-    Public Sub SetPositionList(PositionList() As structSTIPositionUpdate?)
+    Public Positions() As structSTIPositionUpdate = Nothing
+    Public Sub SetPositionList(PositionList() As structSTIPositionUpdate)
+        SerializePositions = True
         Positions = PositionList
     End Sub
+    Private SerializePositions As Boolean = False
+    Public Function ShouldSerializePositions() As Boolean
+        Return SerializePositions
+    End Function
 
 
-    Public Orders() As structSTIOrderUpdate? = Nothing
-    Public Sub SetOrderList(OrderList() As structSTIOrderUpdate?)
+    Public Orders() As structSTIOrderUpdate = Nothing
+    Public Sub SetOrderList(OrderList() As structSTIOrderUpdate)
+        SerializeOrders = True
         Orders = OrderList
     End Sub
+    Private SerializeOrders As Boolean = False
+    Public Function ShouldSerializeOrders() As Boolean
+        Return SerializeOrders
+    End Function
 
 
-    Public OrderConfirm As structSTIOrderConfirm? = Nothing
-    Public Sub SetOrderConfirm(OrderConfirmStruct As structSTIOrderConfirm?)
+    Public OrderConfirm As structSTIOrderConfirm = Nothing
+    Public Sub SetOrderConfirm(OrderConfirmStruct As structSTIOrderConfirm)
+        SerializeOrderConfirm = True
         OrderConfirm = OrderConfirmStruct
     End Sub
+    Private SerializeOrderConfirm As Boolean = False
+    Public Function ShouldSerializeOrderConfirm() As Boolean
+        Return SerializeOrderConfirm
+    End Function
 
 
-    Public OrderUpdate As structSTIOrderUpdate? = Nothing
-    Public Sub SetOrderUpdate(OrderUpdateStruct As structSTIOrderUpdate?)
+    Public OrderUpdate As structSTIOrderUpdate = Nothing
+    Public Sub SetOrderUpdate(OrderUpdateStruct As structSTIOrderUpdate)
+        SerializeOrderUpdate = True
         OrderUpdate = OrderUpdateStruct
     End Sub
+    Private SerializeOrderUpdate As Boolean = False
+    Public Function ShouldSerializeOrderUpdate() As Boolean
+        Return SerializeOrderUpdate
+    End Function
 
 
-    Public OrderReject As structSTIOrderReject? = Nothing
-    Public Sub SetOrderReject(OrderRejectStruct As structSTIOrderReject?)
+    Public OrderReject As structSTIOrderReject = Nothing
+    Public Sub SetOrderReject(OrderRejectStruct As structSTIOrderReject)
+        SerializeOrderReject = True
         OrderReject = OrderRejectStruct
     End Sub
+    Private SerializeOrderReject As Boolean = False
+    Public Function ShouldSerializeOrderReject() As Boolean
+        Return SerializeOrderReject
+    End Function
 
 
-    Public Trades() As structSTITradeUpdate? = Nothing
-    Public Sub SetTradeList(TradeList() As structSTITradeUpdate?)
+    Public Trades() As structSTITradeUpdate = Nothing
+    Public Sub SetTradeList(TradeList() As structSTITradeUpdate)
+        SerializeTrades = True
         Trades = TradeList
     End Sub
+    Private SerializeTrades As Boolean = False
+    Public Function ShouldSerializeTrades() As Boolean
+        Return SerializeTrades
+    End Function
 
 
-    Public TradeUpdate As structSTITradeUpdate? = Nothing
-    Public Sub SetTradeUpdate(TradeUpdateStruct As structSTITradeUpdate?)
+    Public TradeUpdate As structSTITradeUpdate = Nothing
+    Public Sub SetTradeUpdate(TradeUpdateStruct As structSTITradeUpdate)
+        SerializeTradeUpdate = True
         TradeUpdate = TradeUpdateStruct
     End Sub
+    Private SerializeTradeUpdate As Boolean = False
+    Public Function ShouldSerializeTradeUpdate() As Boolean
+        Return SerializeTradeUpdate
+    End Function
 
 
     Public ExceptionMessage As String = Nothing
