@@ -87,7 +87,6 @@ Public Class MainFrom
         TCSTIApp.GetDestinationList(DestinationList)
 
         Dim Data As DataLayer = New DataLayer
-        Data.SetServerTime(TCSTIApp.GetServerTime)
         Data.SetAccountList(AccountList)
         Data.SetTraderList(TraderList)
         Data.SetDestinationList(DestinationList)
@@ -165,12 +164,15 @@ Public Class MainFrom
     End Sub
 
     Private Sub TCWebSocket_MessageReceived(sender As Object, e As MessageReceivedEventArgs) Handles TCWebSocket.MessageReceived
-        ProcessMessage(e.Message)
+        If (Not String.IsNullOrWhiteSpace(e.ToString)) Then
+            ProcessMessage(e.Message)
+        End If
     End Sub
 
     Private Sub SendToWebsocket(Data As DataLayer)
         If TCWebSocket IsNot Nothing Then
             If TCWebSocket.State = WebSocketState.Open Then
+                Data.SetServerTime(TCSTIApp.GetServerTime)
                 TCWebSocket.Send(Data.ToJson)
             End If
         End If

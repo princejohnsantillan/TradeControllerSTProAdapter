@@ -101,7 +101,7 @@ Public Class DataLayer
     Public Function ToJson() As String
         Dim Settings As New JsonSerializerSettings
         With Settings
-            .NullValueHandling = NullValueHandling.Include
+            .NullValueHandling = NullValueHandling.Ignore
         End With
 
         Return JsonConvert.SerializeObject(Me, Settings)
