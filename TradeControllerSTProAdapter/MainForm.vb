@@ -166,13 +166,12 @@ Public Class MainFrom
     End Sub
 
     Private Sub TCWebSocket_MessageReceived(sender As Object, e As MessageReceivedEventArgs) Handles TCWebSocket.MessageReceived
-        If (Not String.IsNullOrWhiteSpace(e.ToString)) Then
+        If (Not String.IsNullOrWhiteSpace(e.Message)) Then
             ProcessMessage(e.Message)
         End If
     End Sub
 
     Private Sub SendToWebsocket(Data As DataLayer)
-        Console.WriteLine(Data.ToJson)
         If TCWebSocket IsNot Nothing Then
             If TCWebSocket.State = WebSocketState.Open Then
                 Data.SetServerTime(TCSTIApp.GetServerTime)
@@ -184,7 +183,7 @@ Public Class MainFrom
     Private Sub ProcessMessage(Message As String)
         Dim MessageObject As Object = JsonConvert.DeserializeObject(Message)
 
-        Dim FunctionString As String = Trim(MessageObject("__Function"))
+        Dim FunctionString As String = MessageObject("__Function")
         Dim Parameters As Object = MessageObject("__Parameters")
 
         Try
@@ -203,7 +202,6 @@ Public Class MainFrom
                 '@class STIAcctMaint
                 Case "MaintainAccount"
                     MaintainAccount(Parameters)
-
 
                 '@class STIAcctMaint
                 Case "MaintainSymbolControl"
@@ -294,19 +292,19 @@ Public Class MainFrom
     End Sub
 
     Public Sub MaintainAccount(Parameters As Object)
-        Dim Code As Integer = TCSTIAcctMaint.MaintainAccount(StructConvert.ToSTIAccountUpdate(Parameters.ToString))
+        Dim ErrorCode As Integer = TCSTIAcctMaint.MaintainAccount(StructConvert.ToSTIAccountUpdate(Parameters.ToString))
 
         Dim Data As DataLayer = New DataLayer
-        Data.SetMaintainAccountResponse(ErrorCodeHandler.MaintainAccountErrorMessage(Code))
+        Data.SetMaintainAccountResponse(ErrorCodeHandler.MaintainAccountErrorMessage(ErrorCode))
 
         SendToWebsocket(Data)
     End Sub
 
     Public Sub MaintainSymbolControl(Parameters As Object)
-        Dim Code As Integer = TCSTIAcctMaint.MaintainSymbolControl(StructConvert.ToSTISymbolControl(Parameters.ToString))
+        Dim ErrorCode As Integer = TCSTIAcctMaint.MaintainSymbolControl(StructConvert.ToSTISymbolControl(Parameters.ToString))
 
         Dim Data As DataLayer = New DataLayer
-        Data.SetMaintainSymbolControlResponse(ErrorCodeHandler.MaintainAccountErrorMessage(Code))
+        Data.SetMaintainSymbolControlResponse(ErrorCodeHandler.MaintainAccountErrorMessage(ErrorCode))
 
         SendToWebsocket(Data)
     End Sub
@@ -317,11 +315,11 @@ Public Class MainFrom
         Dim OldClientOrderID As String = Parameters("OldClientOrderID")
 
         Dim OrderStruct As structSTIOrder = StructConvert.ToSTIOrder(OrderString)
-        Dim Code As Integer = TCSTIOrder.ReplaceOrderStruct(OrderStruct, OldOrderRecordID, OldClientOrderID)
+        Dim ErrorCode As Integer = TCSTIOrder.ReplaceOrderStruct(OrderStruct, OldOrderRecordID, OldClientOrderID)
 
-        If (Code <> 0) Then
+        If (ErrorCode <> 0) Then
             Dim Data As DataLayer = New DataLayer
-            Data.SetOrderReject(ErrorCodeHandler.CreateOrderReject(Code, OrderStruct))
+            Data.SetOrderReject(ErrorCodeHandler.CreateOrderReject(ErrorCode, OrderStruct))
 
             SendToWebsocket(Data)
         End If
@@ -329,11 +327,11 @@ Public Class MainFrom
 
     Private Sub SubmitOrder(Parameters As Object)
         Dim OrderStruct As structSTIOrder = StructConvert.ToSTIOrder(Parameters.ToString)
-        Dim Code As Integer = TCSTIOrder.SubmitOrderStruct(OrderStruct)
+        Dim ErrorCode As Integer = TCSTIOrder.SubmitOrderStruct(OrderStruct)
 
-        If (Code <> 0) Then
+        If (ErrorCode <> 0) Then
             Dim Data As DataLayer = New DataLayer
-            Data.SetOrderReject(ErrorCodeHandler.CreateOrderReject(Code, OrderStruct))
+            Data.SetOrderReject(ErrorCodeHandler.CreateOrderReject(ErrorCode, OrderStruct))
 
             SendToWebsocket(Data)
         End If
@@ -363,8 +361,10 @@ Public Class MainFrom
     End Sub
 
     Public Sub GetOrderInfo(Parameters As Object)
+        Dim ClientOrderID As String = Parameters("ClientOrderID")
+
         Dim Data As DataLayer = New DataLayer
-        Data.SetOrderUpdate(TCSTIOrderMaint.GetOrderInfo(Parameters.ToString))
+        Data.SetOrderUpdate(TCSTIOrderMaint.GetOrderInfo(ClientOrderID))
 
         SendToWebsocket(Data)
     End Sub
