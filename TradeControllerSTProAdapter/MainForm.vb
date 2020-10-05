@@ -1,22 +1,23 @@
 ﻿Imports Newtonsoft.Json
 Imports SterlingLib
+Imports SuperSocket.ClientEngine
 Imports WebSocket4Net
 
 Public Class MainFrom
 
-    Private WithEvents TCSTIAcctMaint As STIAcctMaint
+    Private WithEvents TCSTIAcctMaint As STIAcctMaint = Nothing
 
-    Private WithEvents TCSTIEvents As STIEvents
+    Private WithEvents TCSTIEvents As STIEvents = Nothing
 
-    Private WithEvents TCSTIPosition As STIPosition
+    Private WithEvents TCSTIPosition As STIPosition = Nothing
 
-    Private WithEvents TCWebSocket As WebSocket
+    Private WithEvents TCWebSocket As WebSocket = Nothing
 
-    Private TCSTIApp As STIApp
+    Private TCSTIApp As STIApp = Nothing
 
-    Private TCSTIOrder As STIOrder
+    Private TCSTIOrder As STIOrder = Nothing
 
-    Private TCSTIOrderMaint As STIOrderMaint
+    Private TCSTIOrderMaint As STIOrderMaint = Nothing
 
     Private TCTraderID As String = Nothing
 
@@ -42,7 +43,7 @@ Public Class MainFrom
     End Sub
 
     Private Sub SterlingIsNotRunning()
-        MsgBox("Sterling Trading Pro must be running.")
+        MsgBox("Make sure Sterling Trader Pro or Elite is running.")
         Environment.Exit(0)
     End Sub
 
@@ -78,7 +79,13 @@ Public Class MainFrom
         End Try
     End Sub
 
+    Public Function NewWebSocketMessage() As WebSocketMessage
+        Return New WebSocketMessage(TCTraderID)
+    End Function
+
+
     Private Sub SendMetadata()
+        Dim Metadata As Dictionary(Of String, String()) = New Dictionary(Of String, String())
         Dim AccountList() As String = Nothing
         Dim TraderList() As String = Nothing
         Dim DestinationList() As String = Nothing
@@ -87,12 +94,11 @@ Public Class MainFrom
         TCSTIApp.GetTraderList(TCTraderID, TraderList)
         TCSTIApp.GetDestinationList(DestinationList)
 
-        Dim Data As DataLayer = New DataLayer
-        Data.SetAccountList(AccountList)
-        Data.SetTraderList(TraderList)
-        Data.SetDestinationList(DestinationList)
+        Metadata("AccountList") = AccountList
+        Metadata("TraderList") = TraderList
+        Metadata("DestinationList") = DestinationList
 
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetMetadata(Metadata))
     End Sub
 
     Private Sub TCSTIEvents_OnSTIShutdown() Handles TCSTIEvents.OnSTIShutdown
@@ -100,52 +106,34 @@ Public Class MainFrom
     End Sub
 
     Private Sub TCSTIEvents_OnSTIOrderUpdateXML(ByRef bstrOrder As String) Handles TCSTIEvents.OnSTIOrderUpdateXML
-        Dim Data As DataLayer = New DataLayer
-        Data.SetOrderUpdate(StructConvert.ToSTIOrderUpdate(bstrOrder))
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetOrderUpdate(StructConvert.ToSTIOrderUpdate(bstrOrder)))
     End Sub
 
     Private Sub TCSTIEvents_OnSTIOrderConfirmXML(ByRef bstrOrder As String) Handles TCSTIEvents.OnSTIOrderConfirmXML
-        Dim Data As DataLayer = New DataLayer
-        Data.SetOrderConfirm(StructConvert.ToSTIOrderConfirm(bstrOrder))
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetOrderConfirm(StructConvert.ToSTIOrderConfirm(bstrOrder)))
     End Sub
 
     Private Sub TCSTIEvents_OnSTIOrderRejectXML(ByRef bstrOrder As String) Handles TCSTIEvents.OnSTIOrderRejectXML
-        Dim Data As DataLayer = New DataLayer
-        Data.SetOrderReject(StructConvert.ToSTIOrderReject(bstrOrder))
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetOrderReject(StructConvert.ToSTIOrderReject(bstrOrder)))
     End Sub
 
     Private Sub TCSTIEvents_OnSTITradeUpdateXML(ByRef bstrTrade As String) Handles TCSTIEvents.OnSTITradeUpdateXML
-        Dim Data As DataLayer = New DataLayer
-        Data.SetTradeUpdate(StructConvert.ToSTITradeUpdate(bstrTrade))
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetTradeUpdate(StructConvert.ToSTITradeUpdate(bstrTrade)))
     End Sub
 
     Private Sub TCSTIPosition_OnSTIPositionUpdateXML(ByRef bstrPosition As String) Handles TCSTIPosition.OnSTIPositionUpdateXML
-        Dim Data As DataLayer = New DataLayer
-        Data.SetPositionUpdate(StructConvert.ToSTIPositionUpdate(bstrPosition))
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetPositionUpdate(StructConvert.ToSTIPositionUpdate(bstrPosition)))
     End Sub
 
     Private Sub TCSTIAcctMaint_OnSTIAcctUpdateXML(ByRef bstrAcct As String) Handles TCSTIAcctMaint.OnSTIAcctUpdateXML
-        Dim Data As DataLayer = New DataLayer
-        Data.SetAccountUpdate(StructConvert.ToSTIAccountUpdate(bstrAcct))
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetAccountUpdate(StructConvert.ToSTIAccountUpdate(bstrAcct)))
     End Sub
 
     Private Sub SocketConnectButton_Click(sender As Object, e As EventArgs) Handles SocketConnectButton.Click
         SetConnectingStatus()
 
         Try
-            TCWebSocket = New WebSocket("wss://" + EndpointInput.Text + "/" + TCTraderID)
+            TCWebSocket = New WebSocket("wss://" + Trim(EndpointInput.Text) + "/" + TCTraderID + "?AppVersion=" + ProductVersion)
             TCWebSocket.Open()
         Catch ex As Exception
             SetDisconnectedStatus()
@@ -158,11 +146,14 @@ Public Class MainFrom
         SetConnectedStatus()
 
         SendMetadata()
-        GetPositionList()
     End Sub
 
     Private Sub TCWebSocket_Closed(sender As Object, e As EventArgs) Handles TCWebSocket.Closed
         SetDisconnectedStatus()
+    End Sub
+
+    Private Sub TCWebSocket_Error(sender As Object, e As ErrorEventArgs) Handles TCWebSocket.[Error]
+        MsgBox(e.Exception.Message)
     End Sub
 
     Private Sub TCWebSocket_MessageReceived(sender As Object, e As MessageReceivedEventArgs) Handles TCWebSocket.MessageReceived
@@ -171,11 +162,11 @@ Public Class MainFrom
         End If
     End Sub
 
-    Private Sub SendToWebsocket(Data As DataLayer)
+    Private Sub SendToWebSocket(Message As WebSocketMessage)
         If TCWebSocket IsNot Nothing Then
             If TCWebSocket.State = WebSocketState.Open Then
-                Data.SetServerTime(TCSTIApp.GetServerTime)
-                TCWebSocket.Send(Data.ToJson)
+                Message.SetServerTime(TCSTIApp.GetServerTime)
+                TCWebSocket.Send(Message.ToJson)
             End If
         End If
     End Sub
@@ -183,69 +174,72 @@ Public Class MainFrom
     Private Sub ProcessMessage(Message As String)
         Dim MessageObject As Object = JsonConvert.DeserializeObject(Message)
 
-        Dim FunctionString As String = MessageObject("__Function")
-        Dim Parameters As Object = MessageObject("__Parameters")
+        Dim EventName As String = MessageObject("Event")
+        Dim DataObject As Object = MessageObject("Data")
 
         Try
-            Select Case FunctionString
+            Select Case EventName
+                Case "MsgBox"
+                    MsgBox(DataObject)
+
                 Case "SendMetadata"
                     SendMetadata()
 
                 '@class STIApp
                 Case "SendMessageBox"
-                    SendMessageBox(Parameters)
+                    SendMessageBox(DataObject)
 
                 '@class STIAcctMaint
                 Case "GetAccountInfo"
-                    GetAccountInfo(Parameters)
+                    GetAccountInfo(DataObject)
 
                 '@class STIAcctMaint
                 Case "MaintainAccount"
-                    MaintainAccount(Parameters)
+                    MaintainAccount(DataObject)
 
                 '@class STIAcctMaint
                 Case "MaintainSymbolControl"
-                    MaintainSymbolControl(Parameters)
+                    MaintainSymbolControl(DataObject)
 
                 '@class STIOrder
                 Case "ReplaceOrderStruct"
-                    ReplaceOrder(Parameters)
+                    ReplaceOrder(DataObject)
 
                 '@class STIOrder
                 Case "SubmitOrderStruct"
-                    SubmitOrder(Parameters)
+                    SubmitOrder(DataObject)
 
                 '@class STIOrderMaint
                 Case "CancelAllOrders"
-                    CancelAllOrders(Parameters)
+                    CancelAllOrders(DataObject)
 
                 '@class STIOrderMaint
                 Case "CancelOrder"
-                    CancelOrder(Parameters)
+                    CancelOrder(DataObject)
 
                 '@class STIOrderMaint
                 Case "CancelOrderEx"
-                    CancelOrderEx(Parameters)
+                    CancelOrderEx(DataObject)
 
                 '@class STIOrderMaint
                 Case "GetOrderInfo"
-                    GetOrderInfo(Parameters)
+                    GetOrderInfo(DataObject)
 
                 '@class STIOrderMaint
                 Case "GetOrderList"
-                    GetOrderList(Parameters)
+                    GetOrderList(DataObject)
 
                 '@class STIOrderMaint
                 Case "GetOrderListEx"
-                    GetOrderListEx(Parameters)
+                    GetOrderListEx(DataObject)
 
                 '@class STIOrderMaint
                 Case "GetTradeListEx"
-                    GetTradeListEx(Parameters)
+                    GetTradeListEx(DataObject)
 
                 '@class STIPosition
                 Case "GetPositionInfoStruct"
-                    GetPositionInfoStruct(Parameters)
+                    GetPositionInfoStruct(DataObject)
 
                 '@class STIPosition
                 Case "GetPositionList"
@@ -253,197 +247,154 @@ Public Class MainFrom
 
                 '@class STIPosition
                 Case "GetPosListByAccount"
-                    GetPosListByAccount(Parameters)
+                    GetPosListByAccount(DataObject)
 
                 '@class STIPosition
                 Case "GetPosListBySym"
-                    GetPosListBySym(Parameters)
+                    GetPosListBySym(DataObject)
 
                 Case Else
-                    Dim Data As DataLayer = New DataLayer
-                    Data.SetExceptionMessage("[" + FunctionString + "] Unsupported Function Call.")
-
-                    SendToWebsocket(Data)
+                    SendToWebSocket(NewWebSocketMessage.SetExceptionMessage("[" + EventName + "] Undefined Event."))
             End Select
         Catch ex As Exception
-            Dim Data As DataLayer = New DataLayer
-            Data.SetExceptionMessage(ex.Message)
-
-            SendToWebsocket(Data)
+            SendToWebSocket(NewWebSocketMessage.SetExceptionMessage(ex.Message))
         End Try
     End Sub
 
 
 #Region "Process Message Functions"
-    Public Sub SendMessageBox(Parameters As Object)
-        Dim Trader As String = Parameters("Trader")
-        Dim Text As String = Parameters("Text")
+    Public Sub SendMessageBox(DataObject As Object)
+        Dim Trader As String = DataObject("Trader")
+        Dim Text As String = DataObject("Text")
 
         TCSTIApp.SendMessageBox(Trader, Text)
     End Sub
 
-    Public Sub GetAccountInfo(Parameters As Object)
-        Dim Account As String = Parameters("Account")
+    Public Sub GetAccountInfo(DataObject As Object)
+        Dim Account As String = DataObject("Account")
 
-        Dim Data As New DataLayer
-        Data.SetAccountUpdate(TCSTIAcctMaint.GetAccountInfo(Account))
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetAccountUpdate(TCSTIAcctMaint.GetAccountInfo(Account)))
     End Sub
 
-    Public Sub MaintainAccount(Parameters As Object)
-        Dim ErrorCode As Integer = TCSTIAcctMaint.MaintainAccount(StructConvert.ToSTIAccountUpdate(Parameters.ToString))
+    Public Sub MaintainAccount(DataObject As Object)
+        Dim ErrorCode As Integer = TCSTIAcctMaint.MaintainAccount(StructConvert.ToSTIAccountUpdate(DataObject.ToString))
 
-        Dim Data As DataLayer = New DataLayer
-        Data.SetMaintainAccountResponse(ErrorCodeHandler.MaintainAccountErrorMessage(ErrorCode))
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetMaintainAccountResponse(ErrorCodeHandler.MaintainAccountErrorMessage(ErrorCode)))
     End Sub
 
-    Public Sub MaintainSymbolControl(Parameters As Object)
-        Dim ErrorCode As Integer = TCSTIAcctMaint.MaintainSymbolControl(StructConvert.ToSTISymbolControl(Parameters.ToString))
+    Public Sub MaintainSymbolControl(DataObject As Object)
+        Dim ErrorCode As Integer = TCSTIAcctMaint.MaintainSymbolControl(StructConvert.ToSTISymbolControl(DataObject.ToString))
 
-        Dim Data As DataLayer = New DataLayer
-        Data.SetMaintainSymbolControlResponse(ErrorCodeHandler.MaintainAccountErrorMessage(ErrorCode))
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetMaintainSymbolControlResponse(ErrorCodeHandler.MaintainAccountErrorMessage(ErrorCode)))
     End Sub
 
-    Public Sub ReplaceOrder(Parameters As Object)
-        Dim OrderString As String = Parameters("Order")
-        Dim OldOrderRecordID As Integer = Parameters("OldOrderRecordID")
-        Dim OldClientOrderID As String = Parameters("OldClientOrderID")
+    Public Sub ReplaceOrder(DataObject As Object)
+        Dim OrderString As String = DataObject("Order")
+        Dim OldOrderRecordID As Integer = DataObject("OldOrderRecordID")
+        Dim OldClientOrderID As String = DataObject("OldClientOrderID")
 
         Dim OrderStruct As structSTIOrder = StructConvert.ToSTIOrder(OrderString)
         Dim ErrorCode As Integer = TCSTIOrder.ReplaceOrderStruct(OrderStruct, OldOrderRecordID, OldClientOrderID)
 
         If (ErrorCode <> 0) Then
-            Dim Data As DataLayer = New DataLayer
-            Data.SetOrderReject(ErrorCodeHandler.CreateOrderReject(ErrorCode, OrderStruct))
-
-            SendToWebsocket(Data)
+            SendToWebSocket(NewWebSocketMessage.SetOrderReject(ErrorCodeHandler.CreateOrderReject(ErrorCode, OrderStruct)))
         End If
     End Sub
 
-    Private Sub SubmitOrder(Parameters As Object)
-        Dim OrderStruct As structSTIOrder = StructConvert.ToSTIOrder(Parameters.ToString)
+    Private Sub SubmitOrder(DataObject As Object)
+        Dim OrderStruct As structSTIOrder = StructConvert.ToSTIOrder(DataObject.ToString)
         Dim ErrorCode As Integer = TCSTIOrder.SubmitOrderStruct(OrderStruct)
 
         If (ErrorCode <> 0) Then
-            Dim Data As DataLayer = New DataLayer
-            Data.SetOrderReject(ErrorCodeHandler.CreateOrderReject(ErrorCode, OrderStruct))
-
-            SendToWebsocket(Data)
+            SendToWebSocket(NewWebSocketMessage.SetOrderReject(ErrorCodeHandler.CreateOrderReject(ErrorCode, OrderStruct)))
         End If
     End Sub
 
-    Public Sub CancelAllOrders(Parameters As Object)
-        TCSTIOrderMaint.CancelAllOrders(StructConvert.ToSTICancelAll(Parameters.ToString))
+    Public Sub CancelAllOrders(DataObject As Object)
+        TCSTIOrderMaint.CancelAllOrders(StructConvert.ToSTICancelAll(DataObject.ToString))
     End Sub
 
-    Public Sub CancelOrder(Parameters As Object)
-        Dim Account As String = Parameters("Account")
-        Dim OrderRecordID As Integer = Parameters("OrderRecordID")
-        Dim OldClientOrderID As String = Parameters("OldClientOrderID")
-        Dim ClientOrderID As String = Parameters("ClientOrderID")
+    Public Sub CancelOrder(DataObject As Object)
+        Dim Account As String = DataObject("Account")
+        Dim OrderRecordID As Integer = DataObject("OrderRecordID")
+        Dim OldClientOrderID As String = DataObject("OldClientOrderID")
+        Dim ClientOrderID As String = DataObject("ClientOrderID")
 
         TCSTIOrderMaint.CancelOrder(Account, OrderRecordID, OldClientOrderID, ClientOrderID)
     End Sub
 
-    Public Sub CancelOrderEx(Parameters As Object)
-        Dim Account As String = Parameters("Account")
-        Dim OrderRecordID As Integer = Parameters("OrderRecordID")
-        Dim OldClientOrderID As String = Parameters("OldClientOrderID")
-        Dim ClientOrderID As String = Parameters("ClientOrderID")
-        Dim Instrument As String = Parameters("Instrument")
+    Public Sub CancelOrderEx(DataObject As Object)
+        Dim Account As String = DataObject("Account")
+        Dim OrderRecordID As Integer = DataObject("OrderRecordID")
+        Dim OldClientOrderID As String = DataObject("OldClientOrderID")
+        Dim ClientOrderID As String = DataObject("ClientOrderID")
+        Dim Instrument As String = DataObject("Instrument")
 
         TCSTIOrderMaint.CancelOrderEx(Account, OrderRecordID, OldClientOrderID, ClientOrderID, Instrument)
     End Sub
 
-    Public Sub GetOrderInfo(Parameters As Object)
-        Dim ClientOrderID As String = Parameters("ClientOrderID")
+    Public Sub GetOrderInfo(DataObject As Object)
+        Dim ClientOrderID As String = DataObject("ClientOrderID")
 
-        Dim Data As DataLayer = New DataLayer
-        Data.SetOrderUpdate(TCSTIOrderMaint.GetOrderInfo(ClientOrderID))
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetOrderUpdate(TCSTIOrderMaint.GetOrderInfo(ClientOrderID)))
     End Sub
 
-    Public Sub GetOrderList(Parameters As Object)
-        Dim OpenOnly As Boolean = Parameters("OpenOnly")
+    Public Sub GetOrderList(DataObject As Object)
+        Dim OpenOnly As Boolean = DataObject("OpenOnly")
         Dim OrderList() As structSTIOrderUpdate = Nothing
 
         TCSTIOrderMaint.GetOrderList(OpenOnly, OrderList)
 
-        Dim Data As DataLayer = New DataLayer
-        Data.SetOrderList(OrderList)
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetOrderList(OrderList))
     End Sub
 
-    Public Sub GetOrderListEx(Parameters As Object)
+    Public Sub GetOrderListEx(DataObject As Object)
         Dim OrderList() As structSTIOrderUpdate = Nothing
 
-        TCSTIOrderMaint.GetOrderListEx(StructConvert.ToSTIOrderFilter(Parameters.ToString), OrderList)
+        TCSTIOrderMaint.GetOrderListEx(StructConvert.ToSTIOrderFilter(DataObject.ToString), OrderList)
 
-        Dim Data As DataLayer = New DataLayer
-        Data.SetOrderList(OrderList)
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetOrderList(OrderList))
     End Sub
 
-    Public Sub GetTradeListEx(Parameters As Object)
+    Public Sub GetTradeListEx(DataObject As Object)
         Dim TradeList() As structSTITradeUpdate = Nothing
 
-        TCSTIOrderMaint.GetTradeListEx(StructConvert.ToSTITradeFilter(Parameters.ToString), TradeList)
+        TCSTIOrderMaint.GetTradeListEx(StructConvert.ToSTITradeFilter(DataObject.ToString), TradeList)
 
-        Dim Data As DataLayer = New DataLayer
-        Data.SetTradeList(TradeList)
+        SendToWebSocket(NewWebSocketMessage.SetTradeList(TradeList))
     End Sub
 
-    Public Sub GetPositionInfoStruct(Parameters As Object)
-        Dim Symbol As String = Parameters("Symbol")
-        Dim Exchange As String = Parameters("Exchange")
-        Dim Account As String = Parameters("Account")
+    Public Sub GetPositionInfoStruct(DataObject As Object)
+        Dim Symbol As String = DataObject("Symbol")
+        Dim Exchange As String = DataObject("Exchange")
+        Dim Account As String = DataObject("Account")
 
-        Dim Data As DataLayer = New DataLayer
-        Data.SetPositionUpdate(TCSTIPosition.GetPositionInfoStruct(Symbol, Exchange, Account))
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetPositionUpdate(TCSTIPosition.GetPositionInfoStruct(Symbol, Exchange, Account)))
     End Sub
 
     Public Sub GetPositionList()
         Dim PositionList() As structSTIPositionUpdate = Nothing
         TCSTIPosition.GetPositionList(PositionList)
 
-        Dim Data As DataLayer = New DataLayer
-        Data.SetPositionList(PositionList)
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetPositionList(PositionList))
     End Sub
 
-    Public Sub GetPosListByAccount(Parameters As Object)
-        Dim Account As String = Parameters("Account")
+    Public Sub GetPosListByAccount(DataObject As Object)
+        Dim Account As String = DataObject("Account")
 
         Dim PositionList() As structSTIPositionUpdate = Nothing
         TCSTIPosition.GetPosListByAccount(Account, PositionList)
 
-        Dim Data As DataLayer = New DataLayer
-        Data.SetPositionList(PositionList)
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetPositionList(PositionList))
     End Sub
 
-    Public Sub GetPosListBySym(Parameters As Object)
-        Dim Symbol As String = Parameters("Symbol")
+    Public Sub GetPosListBySym(DataObject As Object)
+        Dim Symbol As String = DataObject("Symbol")
 
         Dim PositionList() As structSTIPositionUpdate = Nothing
         TCSTIPosition.GetPosListBySym(Symbol, PositionList)
 
-        Dim Data As DataLayer = New DataLayer
-        Data.SetPositionList(PositionList)
-
-        SendToWebsocket(Data)
+        SendToWebSocket(NewWebSocketMessage.SetPositionList(PositionList))
     End Sub
 #End Region
 End Class

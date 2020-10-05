@@ -1,4 +1,8 @@
-﻿Imports Newtonsoft.Json
+﻿'
+'DEPRECATED
+'
+
+Imports Newtonsoft.Json
 Imports SterlingLib
 
 Public Class DataLayer
