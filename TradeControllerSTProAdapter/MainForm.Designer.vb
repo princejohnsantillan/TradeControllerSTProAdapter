@@ -28,13 +28,16 @@ Partial Class MainFrom
         Me.EndpointLabel = New System.Windows.Forms.Label()
         Me.EndpointInput = New System.Windows.Forms.TextBox()
         Me.SocketConnectButton = New System.Windows.Forms.Button()
+        Me.NotificationStrip = New System.Windows.Forms.StatusStrip()
+        Me.NotificationLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.StatusStrip.SuspendLayout()
+        Me.NotificationStrip.SuspendLayout()
         Me.SuspendLayout()
         '
         'StatusStrip
         '
         Me.StatusStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.StatusLabel})
-        Me.StatusStrip.Location = New System.Drawing.Point(0, 54)
+        Me.StatusStrip.Location = New System.Drawing.Point(0, 70)
         Me.StatusStrip.Name = "StatusStrip"
         Me.StatusStrip.Size = New System.Drawing.Size(497, 22)
         Me.StatusStrip.SizingGrip = False
@@ -74,11 +77,30 @@ Partial Class MainFrom
         Me.SocketConnectButton.Text = "Connect"
         Me.SocketConnectButton.UseVisualStyleBackColor = True
         '
+        'NotificationStrip
+        '
+        Me.NotificationStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.NotificationLabel})
+        Me.NotificationStrip.Location = New System.Drawing.Point(0, 48)
+        Me.NotificationStrip.Name = "NotificationStrip"
+        Me.NotificationStrip.Size = New System.Drawing.Size(497, 22)
+        Me.NotificationStrip.SizingGrip = False
+        Me.NotificationStrip.TabIndex = 4
+        Me.NotificationStrip.Text = "NotificationStrip"
+        '
+        'NotificationLabel
+        '
+        Me.NotificationLabel.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.NotificationLabel.ForeColor = System.Drawing.Color.Black
+        Me.NotificationLabel.Name = "NotificationLabel"
+        Me.NotificationLabel.Size = New System.Drawing.Size(159, 17)
+        Me.NotificationLabel.Text = "Welcome to Trade Console!"
+        '
         'MainFrom
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(497, 76)
+        Me.ClientSize = New System.Drawing.Size(497, 92)
+        Me.Controls.Add(Me.NotificationStrip)
         Me.Controls.Add(Me.SocketConnectButton)
         Me.Controls.Add(Me.EndpointInput)
         Me.Controls.Add(Me.EndpointLabel)
@@ -89,6 +111,8 @@ Partial Class MainFrom
         Me.Text = "Trade Console"
         Me.StatusStrip.ResumeLayout(False)
         Me.StatusStrip.PerformLayout()
+        Me.NotificationStrip.ResumeLayout(False)
+        Me.NotificationStrip.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -99,4 +123,6 @@ Partial Class MainFrom
     Friend WithEvents EndpointLabel As Label
     Friend WithEvents EndpointInput As TextBox
     Friend WithEvents SocketConnectButton As Button
+    Friend WithEvents NotificationStrip As StatusStrip
+    Friend WithEvents NotificationLabel As ToolStripStatusLabel
 End Class

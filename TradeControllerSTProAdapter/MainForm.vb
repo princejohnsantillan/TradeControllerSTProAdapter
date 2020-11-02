@@ -40,6 +40,8 @@ Public Class MainFrom
         StatusLabel.ForeColor = Color.Green
         EndpointInput.Enabled = False
         SocketConnectButton.Enabled = False
+
+        Notify("Success! You are now connected. Have a good trading day.")
     End Sub
 
     Private Sub SterlingIsNotRunning()
@@ -153,7 +155,7 @@ Public Class MainFrom
     End Sub
 
     Private Sub TCWebSocket_Error(sender As Object, e As ErrorEventArgs) Handles TCWebSocket.[Error]
-        MsgBox(e.Exception.Message)
+        Notify(e.Exception.Message)
     End Sub
 
     Private Sub TCWebSocket_MessageReceived(sender As Object, e As MessageReceivedEventArgs) Handles TCWebSocket.MessageReceived
@@ -177,17 +179,17 @@ Public Class MainFrom
         Dim EventName As String = MessageObject("event")
         Dim DataObject As Object = MessageObject("data")
 
-        If (String.IsNullOrWhiteSpace(EventName)) Then
+        If String.IsNullOrWhiteSpace(EventName) Then
             Return
         End If
 
         Try
             Select Case EventName
                 Case "WebSocketException"
-                    MsgBox(DataObject("code") + ": " + DataObject("message"))
+                    WebSocketException(DataObject)
 
-                Case "MsgBox"
-                    MsgBox(DataObject)
+                Case "Notify"
+                    Notify(DataObject)
 
                 Case "SendMetadata"
                     SendMetadata()
@@ -270,6 +272,17 @@ Public Class MainFrom
 
 
 #Region "Process Message Functions"
+    Public Sub WebSocketException(DataObject As Object)
+        Dim ExceptionCode As String = DataObject("code")
+        Dim ExceptionMessage As String = DataObject("message")
+
+        Notify(ExceptionCode + ": " + ExceptionMessage)
+    End Sub
+
+    Public Sub Notify(DataObject As Object)
+        NotificationLabel.Text = DataObject
+    End Sub
+
     Public Sub SendMessageBox(DataObject As Object)
         Dim Trader As String = DataObject("Trader")
         Dim Text As String = DataObject("Text")
