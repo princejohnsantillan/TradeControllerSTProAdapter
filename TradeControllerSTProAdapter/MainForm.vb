@@ -50,7 +50,7 @@ Public Class MainFrom
     Private Sub MainFrom_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         CheckForIllegalCrossThreadCalls = False
 
-        Text = "Trade Console - STPro " + ProductVersion
+        Text = "Trade Console for Sterling Trader " + ProductVersion
 
         SetDisconnectedStatus()
 
@@ -133,7 +133,7 @@ Public Class MainFrom
         SetConnectingStatus()
 
         Try
-            TCWebSocket = New WebSocket("wss://" + Trim(EndpointInput.Text) + "/" + TCTraderID + "?AppVersion=" + ProductVersion)
+            TCWebSocket = New WebSocket("wss://" + Trim(EndpointInput.Text) + "/" + TCTraderID + "/" + ProductVersion)
             TCWebSocket.Open()
         Catch ex As Exception
             SetDisconnectedStatus()
@@ -177,8 +177,15 @@ Public Class MainFrom
         Dim EventName As String = MessageObject("Event")
         Dim DataObject As Object = MessageObject("Data")
 
+        If (String.IsNullOrWhiteSpace(EventName)) Then
+            Return
+        End If
+
         Try
             Select Case EventName
+                Case "WebSocketException"
+                    MsgBox(DataObject)
+
                 Case "MsgBox"
                     MsgBox(DataObject)
 
