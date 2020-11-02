@@ -174,8 +174,8 @@ Public Class MainFrom
     Private Sub ProcessMessage(Message As String)
         Dim MessageObject As Object = JsonConvert.DeserializeObject(Message)
 
-        Dim EventName As String = MessageObject("Event")
-        Dim DataObject As Object = MessageObject("Data")
+        Dim EventName As String = MessageObject("event")
+        Dim DataObject As Object = MessageObject("data")
 
         If (String.IsNullOrWhiteSpace(EventName)) Then
             Return
@@ -184,7 +184,7 @@ Public Class MainFrom
         Try
             Select Case EventName
                 Case "WebSocketException"
-                    MsgBox(DataObject)
+                    MsgBox(DataObject("code") + ": " + DataObject("message"))
 
                 Case "MsgBox"
                     MsgBox(DataObject)

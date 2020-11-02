@@ -2,14 +2,16 @@
 Imports SterlingLib
 
 Public Class WebSocketMessage
-    <JsonProperty("Event")>
+    <JsonProperty("event")>
     Public EventName As String = Nothing
 
-    <JsonProperty("Channel")>
+    <JsonProperty("channel")>
     Public ChannelName As String = Nothing
 
+    <JsonProperty("data")>
     Public Data As Object = Nothing
 
+    <JsonProperty("servertime")>
     Public ServerTime As String = Nothing
 
     Public Sub New(Channel As String)
