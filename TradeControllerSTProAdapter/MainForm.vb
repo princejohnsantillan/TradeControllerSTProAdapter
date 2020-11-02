@@ -140,7 +140,7 @@ Public Class MainFrom
         Catch ex As Exception
             SetDisconnectedStatus()
 
-            MsgBox(ex.Message)
+            Notify(ex.Message)
         End Try
     End Sub
 
@@ -273,10 +273,9 @@ Public Class MainFrom
 
 #Region "Process Message Functions"
     Public Sub WebSocketException(DataObject As Object)
-        Dim ExceptionCode As String = DataObject("code")
         Dim ExceptionMessage As String = DataObject("message")
 
-        Notify(ExceptionCode + ": " + ExceptionMessage)
+        Notify(ExceptionMessage)
     End Sub
 
     Public Sub Notify(DataObject As Object)
