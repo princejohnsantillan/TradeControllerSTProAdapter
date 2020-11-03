@@ -40,8 +40,6 @@ Public Class MainFrom
         StatusLabel.ForeColor = Color.Green
         EndpointInput.Enabled = False
         SocketConnectButton.Enabled = False
-
-        Notify("Success! You are now connected. Have a good trading day.")
     End Sub
 
     Private Sub SterlingIsNotRunning()
@@ -279,7 +277,9 @@ Public Class MainFrom
     End Sub
 
     Public Sub Notify(DataObject As Object)
-        NotificationLabel.Text = DataObject
+        Dim Message As String = DataObject("message")
+
+        NotificationLabel.Text = Message
     End Sub
 
     Public Sub SendMessageBox(DataObject As Object)
