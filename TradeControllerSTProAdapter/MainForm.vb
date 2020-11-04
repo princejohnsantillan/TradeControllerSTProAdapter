@@ -80,7 +80,7 @@ Public Class MainFrom
     End Sub
 
     Public Function NewWebSocketMessage() As WebSocketMessage
-        Return New WebSocketMessage(TCTraderID)
+        Return New WebSocketMessage(TCSTIApp.GetServerTime)
     End Function
 
 
@@ -157,7 +157,7 @@ Public Class MainFrom
     End Sub
 
     Private Sub TCWebSocket_MessageReceived(sender As Object, e As MessageReceivedEventArgs) Handles TCWebSocket.MessageReceived
-        If (Not String.IsNullOrWhiteSpace(e.Message)) Then
+        If Not String.IsNullOrWhiteSpace(e.Message) Then
             ProcessMessage(e.Message)
         End If
     End Sub
@@ -165,7 +165,6 @@ Public Class MainFrom
     Private Sub SendToWebSocket(Message As WebSocketMessage)
         If TCWebSocket IsNot Nothing Then
             If TCWebSocket.State = WebSocketState.Open Then
-                Message.SetServerTime(TCSTIApp.GetServerTime)
                 TCWebSocket.Send(Message.ToJson)
             End If
         End If
@@ -271,13 +270,13 @@ Public Class MainFrom
 
 #Region "Process Message Functions"
     Public Sub WebSocketException(DataObject As Object)
-        Dim ExceptionMessage As String = DataObject("message")
+        Dim ExceptionMessage As String = DataObject("Message")
 
         Notify(ExceptionMessage)
     End Sub
 
     Public Sub Notify(DataObject As Object)
-        Dim Message As String = DataObject("message")
+        Dim Message As String = DataObject("Message")
 
         NotificationLabel.Text = Message
     End Sub

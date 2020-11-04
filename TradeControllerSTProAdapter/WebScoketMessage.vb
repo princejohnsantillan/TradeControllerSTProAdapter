@@ -5,21 +5,15 @@ Public Class WebSocketMessage
     <JsonProperty("event")>
     Public EventName As String = Nothing
 
-    <JsonProperty("channel")>
-    Public ChannelName As String = Nothing
-
     <JsonProperty("data")>
     Public Data As Object = Nothing
 
     <JsonProperty("servertime")>
     Public ServerTime As String = Nothing
 
-    Public Sub New(Channel As String)
-        ChannelName = Channel
-    End Sub
-
-    Public Sub SetServerTime(Time As String)
+    Public Sub New(Time As String)
         ServerTime = Time
+        'TODO: Add Signature for security.
     End Sub
 
     Public Function SetMetadata(Metadata As Dictionary(Of String, String())) As WebSocketMessage
