@@ -419,9 +419,11 @@ Public Class MainFrom
     End Sub
 
     Public Sub SwitchLinkGroupSymbol(DataObject As Object)
+        Dim LinkGroup As Integer = DataObject("LinkGroup")
         Dim Symbol As String = DataObject("Symbol")
+        Dim Exchange As String = DataObject("Exchange")
 
-        TCSTIApp.SwitchLinkGroupSymbol(1, Symbol, "E")
+        TCSTIApp.SwitchLinkGroupSymbol(LinkGroup, Symbol, Exchange)
     End Sub
 #End Region
 End Class
