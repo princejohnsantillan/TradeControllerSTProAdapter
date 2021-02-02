@@ -259,6 +259,9 @@ Public Class MainFrom
                 Case "GetPosListBySym"
                     GetPosListBySym(DataObject)
 
+                Case "SwitchLinkGroupSymbol"
+                    SwitchLinkGroupSymbol(DataObject)
+
                 Case Else
                     SendToWebSocket(NewWebSocketMessage.SetExceptionMessage("[" + EventName + "] Undefined Event."))
             End Select
@@ -413,6 +416,12 @@ Public Class MainFrom
         TCSTIPosition.GetPosListBySym(Symbol, PositionList)
 
         SendToWebSocket(NewWebSocketMessage.SetPositionList(PositionList))
+    End Sub
+
+    Public Sub SwitchLinkGroupSymbol(DataObject As Object)
+        Dim Symbol As String = DataObject("Symbol")
+
+        TCSTIApp.SwitchLinkGroupSymbol(1, Symbol, "E")
     End Sub
 #End Region
 End Class
