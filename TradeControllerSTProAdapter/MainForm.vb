@@ -101,7 +101,7 @@ Public Class MainFrom
         SendToWebSocket(NewWebSocketMessage.SetMetadata(Metadata))
     End Sub
 
-    Public Sub Notify(Message As String)
+    Public Sub StatusMessage(Message As String)
         NotificationLabel.Text = Message
     End Sub
 
@@ -142,7 +142,7 @@ Public Class MainFrom
         Catch ex As Exception
             SetDisconnectedStatus()
 
-            Notify(ex.Message)
+            StatusMessage(ex.Message)
         End Try
     End Sub
 
@@ -157,7 +157,7 @@ Public Class MainFrom
     End Sub
 
     Private Sub TCWebSocket_Error(sender As Object, e As ErrorEventArgs) Handles TCWebSocket.[Error]
-        Notify(e.Exception.Message)
+        StatusMessage(e.Exception.Message)
     End Sub
 
     Private Sub TCWebSocket_MessageReceived(sender As Object, e As MessageReceivedEventArgs) Handles TCWebSocket.MessageReceived
@@ -188,6 +188,9 @@ Public Class MainFrom
             Select Case EventName
                 Case "WebSocketException"
                     WebSocketException(DataObject)
+
+                Case "Notify"
+                    Notify(DataObject)
 
                 Case "SendMetadata"
                     SendMetadata()
@@ -276,7 +279,13 @@ Public Class MainFrom
     Public Sub WebSocketException(DataObject As Object)
         Dim ExceptionMessage As String = DataObject("Message")
 
-        Notify(ExceptionMessage)
+        StatusMessage(ExceptionMessage)
+    End Sub
+
+    Public Sub Notify(DataObject As Object)
+        Dim Message As String = DataObject("Message")
+
+        StatusMessage(Message)
     End Sub
 
     Public Sub SendMessageBox(DataObject As Object)
