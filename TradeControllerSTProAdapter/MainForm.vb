@@ -101,6 +101,10 @@ Public Class MainFrom
         SendToWebSocket(NewWebSocketMessage.SetMetadata(Metadata))
     End Sub
 
+    Public Sub Notify(Message As String)
+        NotificationLabel.Text = Message
+    End Sub
+
     Private Sub TCSTIEvents_OnSTIShutdown() Handles TCSTIEvents.OnSTIShutdown
         SterlingIsNotRunning()
     End Sub
@@ -184,9 +188,6 @@ Public Class MainFrom
             Select Case EventName
                 Case "WebSocketException"
                     WebSocketException(DataObject)
-
-                Case "Notify"
-                    Notify(DataObject)
 
                 Case "SendMetadata"
                     SendMetadata()
@@ -276,12 +277,6 @@ Public Class MainFrom
         Dim ExceptionMessage As String = DataObject("Message")
 
         Notify(ExceptionMessage)
-    End Sub
-
-    Public Sub Notify(DataObject As Object)
-        Dim Message As String = DataObject("Message")
-
-        NotificationLabel.Text = Message
     End Sub
 
     Public Sub SendMessageBox(DataObject As Object)
